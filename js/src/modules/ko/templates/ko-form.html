@@ -1,0 +1,20 @@
+<form data-bind="attr: {action: action}">
+	<div data-bind="foreach: fields">
+		<div data-bind='component: {
+		 	name: type,
+			params: {
+				value: value,
+				name: name,
+				label: label,
+				required: required,
+				minLength: minLength,
+				error: error
+			}
+		}'></div>
+	</div>
+	<div class="text-rigth form-group">
+		<button type="submit" data-bind="attr: {disabled: disabled}" class="btn btn-primary">Submit</button>
+	</div>
+</form>
+Component model
+<pre data-bind="text: ko.toJSON($component, null, 2)"></pre>

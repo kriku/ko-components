@@ -1,0 +1,20 @@
+<div class="form-group">
+	<label data-bind="attr: {'for': name}, text: label"></label>
+	<div class="input-group">
+		<input type="text" data-bind="attr: {
+				name: name,
+				'id': name
+			},
+			event: { keypress: check },
+			value: value" class="form-control"/>
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button" data-bind="click: increment">
+				<i class="fa fa-plus"></i>
+			</button>
+			<button class="btn btn-default" type="button" data-bind="click: decrement">
+				<i class="fa fa-minus"></i>
+			</button>
+		</span>
+	</div>
+	<p class="text-danger" data-bind="text: error"></p>
+</div>
