@@ -1,0 +1,99 @@
+<html>
+<head>
+	<title>GUI</title>
+	<script data-main="js/dist/main" src="js/require.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.css">
+</head>
+<body>
+
+<div id="mainContainer">
+	<div id="koInputText" class="area">
+		<div class="container-fluid">
+			<p class="page-header lead">Knockout components</p>
+			<p class="lead small">ko-form</p>
+			<div class="row">
+				<div class="col-md-4">
+					<div data-bind='component: {
+						name: "ko-form",
+						params: {
+							form: formSrc,
+							action: "some-action",
+							method: "post",
+							data: data
+						}
+					}'></div>
+				</div>
+				<div class="col-md-4">
+					Form data
+					<pre data-bind="text: ko.toJSON($root.data, null, 2)"></pre>
+					Form source
+					<pre data-bind="text: ko.toJSON($root.formSrc, null, 2)"></pre>
+				</div>
+				<div class="col-md-4">
+					Model
+					<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	require(['main'], function() {
+		// Configuration loaded now, safe to do other require calls
+		// that depend on that config.
+		require(['knockout'], function(ko) {
+			var _form = [
+				{
+					type: 'input-text',
+					name: 'firstName',
+					label: 'First name',
+					value: '',
+					minLength: 5,
+					required: true
+				},
+				{
+					type: 'input-text',
+					name: 'secondName',
+					label: 'Second name',
+					value: '',
+					required: true
+				},
+				{
+					type: 'input-text',
+					name: 'age',
+					label: 'Age 1',
+					value: '1'
+				},
+				{
+					type: 'input-num',
+					name: 'age',
+					label: 'Age 2',
+					value: '2',
+					required: true
+				},
+				{
+					type: 'input-num',
+					name: 'age',
+					label: 'Age 3',
+					value: '3',
+					required: true
+				}
+			];
+
+			var Model = function () {
+				var self = this;
+				this.fields = ko.observableArray([]);
+				this.formSrc = _form;
+				this.data = ko.observable();
+			};
+
+			ko.components.register('ko-form', { require: 'ko/ko-form' });
+			var model = new Model();
+			ko.applyBindings(model);
+		});
+	});
+
+</script>
+</body>
+</html:html>

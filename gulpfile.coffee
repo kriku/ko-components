@@ -1,57 +1,62 @@
 gulp = require 'gulp'
 less = require 'gulp-less'
 rename = require 'gulp-rename'
-concat = require 'gulp-concat'
+connect = require 'gulp-connect'
+# concat = require 'gulp-concat'
 uglify = require 'gulp-uglify'
-convert = require 'gulp-convert-encoding'
-rjs = require 'gulp-requirejs'
+# convert = require 'gulp-convert-encoding'
+# rjs = require 'gulp-requirejs'
 header = require 'gulp-header'
 
-#By default load any module IDs from js/dist/modules
-#except, if the module ID starts with "knockout",
-#load it from the ../ directory. paths
-#config is relative to the baseUrl, and
-#never includes a ".js" extension since
-#the paths config could be for a directory.
-config = (mode) ->
+# Paths to project libraries
+# modules - for requirejs modules
+paths = {
+	js: {
+		src: 'js/src'
+		dist: 'js/dist'
+		modules: '/modules'
+		base: 'js/src/menu.js' # can add more with concat
+		main: 'main.js'
+	}
+	css: 'css'
+}
+# to paths.js.base file prepend config header
+# and save as paths.js.main
+config = (baseUrl) ->
 	"""
 	require.config({
-		baseUrl: 'js/#{mode}/modules',
+		baseUrl: '#{baseUrl}',
 		paths: {
 			knockout: '../knockout'
 		}
 	});
 	"""
+# By default load any module IDs from #{baseUrl}
+# so for distribution baseUrl = 'js/dist/modules'
+# and for development baseUrl = 'js/src/modules'
+# except, if the module ID starts with "knockout",
+# load it from the ../ directory. paths
+# config is relative to the baseUrl, and
+# never includes a ".js" extension since
+# the paths config could be for a directory.
 
-paths = {
-	js: {
-		src: '../web/js/src'
-		dist: '../web/js/dist'
-		modules: '/modules'
-		base: '../web/js/src/menu.js' # can add more with concat
-		main: 'main.js'
-	},
-	css: '../web/css'
-}
+# So for src and dist version write different configs
+gulp.task 'write-main-src', ->
+	gulp.src paths.js.base
+	.pipe header config (paths.js.src + paths.js.modules)
+	.pipe rename paths.js.main
+	.pipe gulp.dest paths.js.src
 
-gulp.task 'bootstrap-less', ->
-	gulp.src 'less/bootstrap.less'
-	.pipe less compress: true
-	.pipe gulp.dest paths.css
-
-gulp.task 'bootstrap-js', ->
-	gulp.src [
-#		'js/jquerycheck.js'
-		'js/scrollspy.js'
-		'js/floatlabel.js'
-		'js/floatlabels.js'
-#		'js/tab.js'
-#		'js/dropdown.js'
-	]
-	.pipe concat 'bootstrap.min.js'
+gulp.task 'write-main-dist', ->
+	gulp.src paths.js.base
+	.pipe header config (paths.js.dist + paths.js.modules)
 	.pipe do uglify
+	.pipe rename paths.js.main
 	.pipe gulp.dest paths.js.dist
 
+gulp.task 'write-main', ['write-main-src', 'write-main-dist']
+
+# and keep different version for dist and developement
 gulp.task 'copy-knockout', ->
 	gulp.src 'node_modules/knockout/build/output/knockout-latest.js'
 	.pipe rename 'knockout.js'
@@ -62,24 +67,17 @@ gulp.task 'copy-knockout-debug', ->
 	.pipe rename 'knockout.js'
 	.pipe gulp.dest paths.js.src
 
-gulp.task 'copy', ['copy-knockout']
+#may be start just once
+gulp.task 'copy-ko', ['copy-knockout', 'copy-knockout-debug']
 
-gulp.task 'require-main', ['write-main-src', 'write-main-dist']
+# without optimization
+# todo: make inline strings in components dist modules
+# so not need require['text!.....template.html'] and double request
+gulp.task 'copy-templates', ->
+	gulp.src (paths.js.src + paths.js.modules + '/**/*.html')
+	.pipe gulp.dest (paths.js.dist + paths.js.modules)
 
-# write configs
-gulp.task 'write-main-src', ->
-	gulp.src paths.js.base
-	.pipe header config 'src'
-	.pipe rename paths.js.main
-	.pipe gulp.dest paths.js.src
-
-gulp.task 'write-main-dist', ->
-	gulp.src paths.js.base
-	.pipe header config 'dist'
-	.pipe do uglify
-	.pipe rename paths.js.main
-	.pipe gulp.dest paths.js.dist
-
+#main 
 gulp.task 'js-modules', ['copy-templates'], ->
 	# all js modules
 	gulp.src [
@@ -90,32 +88,27 @@ gulp.task 'js-modules', ['copy-templates'], ->
 #	.pipe convert to: 'cp1251'
 	.pipe gulp.dest (paths.js.dist + paths.js.modules)
 
-# without optimization
-gulp.task 'copy-templates', ->
-	gulp.src (paths.js.src + paths.js.modules + '/**/*.html')
-	.pipe gulp.dest (paths.js.dist + paths.js.modules)
+gulp.task 'bootstrap-less', ->
+	gulp.src 'node_modules/bootstrap/less/bootstrap.less'
+	.pipe do less # compress: off
+	.pipe gulp.dest paths.css
 
+gulp.task 'connect', ->
+	connect.server
+		port: 8000
+		livereload: on
+		root: ''
 
-gulp.task 'datepicker-less', ->
-	gulp.src 'datepicker/build/build_standalone3.less'
-	.pipe less compress: true
-	.pipe rename 'datepicker3.min.css'
-	.pipe gulp.dest '../web/css/'
+gulp.task 'update', ->
+	gulp.src '*.html'
+	.pipe do connect.reload
 
-gulp.task 'datepicker-js', ->
-	gulp.src ['js/datepicker.js']
-	.pipe uglify output: ascii_only: true
-	.pipe rename 'bootstrap-datepicker.min.js'
-	.pipe gulp.dest '../web/js/'
+gulp.task 'watch-html', ->
+	gulp.watch '**/*.html', ['update']
 
-gulp.task 'bootstrap-watch', ->
-	gulp.watch 'less/**/*.less', ['bootstrap-less']
-	gulp.watch 'js/**/*.js', ['bootstrap-js']
+gulp.task 'watch-modules', ->
+	gulp.watch "#{paths.js.src}#{paths.js.modules}/**/*.js", ['js-modules', 'update']
 
-gulp.task 'datepicker-watch', ->
-	gulp.watch 'js/datepicker.js', ['datepicker-js']
+gulp.task 'watch', ['watch-html', 'watch-modules']
 
-gulp.task 'bootstrap', ['bootstrap-less', 'bootstrap-js', 'bootstrap-watch']
-gulp.task 'js', ['js-bars', 'js-utils', 'js-modules']
-gulp.task 'default', ['bootstrap', 'js']
-gulp.task 'datepicker', ['datepicker-less', 'datepicker-js']
+gulp.task 'default', ['write-main', 'js-modules', 'connect', 'watch']
