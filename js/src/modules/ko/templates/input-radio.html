@@ -1,0 +1,11 @@
+<div class="form-group" data-bind="foreach: options">
+	<input type="radio" data-bind="attr: {
+			name: $component.name,
+			value: value,
+			'id': $component.name + value
+		},
+		checked: $component.value
+		click: $component.check,
+		value: value"/>
+	<label data-bind="attr: {'for': $component.name + value}, text: label"></label>
+</div>

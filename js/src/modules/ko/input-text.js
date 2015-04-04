@@ -5,7 +5,7 @@
 //  - Can be referenced with just a single 'require' declaration
 //  - Can be included in a bundle using the r.js optimizer
 define(['knockout', 'text!./templates/input-text.html'], function(ko, htmlString) {
-	function inputTextModel (params) {
+	function InputTextModel (params) {
 		var self = this;
 		this.name = params.name;
 		this.label = params.label;
@@ -17,15 +17,15 @@ define(['knockout', 'text!./templates/input-text.html'], function(ko, htmlString
 		this.selfError = ko.computed(function () {
 			self.error('');
 			if (self.required && self.value().length === 0 ) {
-				self.error('Поле обязательное к заполнению');
+				self.error('Required field');
 			}
 			if (self.value().length < self.minLength) {
-				self.error('Минимальное количество символов - ' + self.minLength);
+				self.error('Minimum length - ' + self.minLength);
 			}
 			return self.error();
 		}, this);
 	}
 
 	// Return component definition
-	return { viewModel: inputTextModel, template: htmlString };
+	return { viewModel: InputTextModel, template: htmlString };
 });
