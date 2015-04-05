@@ -4,7 +4,8 @@
 // Recommended AMD module pattern for a Knockout component that:
 //  - Can be referenced with just a single 'require' declaration
 //  - Can be included in a bundle using the r.js optimizer
-define(['knockout', 'text!./templates/ko-form.html'], function(ko, htmlString) {
+define(['knockout', 'text!./templates/ko-form.html'],
+function(ko, htmlString) {
 
 	var Input = function (params) {
 		this.type = params.type;
@@ -28,17 +29,22 @@ define(['knockout', 'text!./templates/ko-form.html'], function(ko, htmlString) {
 	var Radio = function (params) {
 		this.type = params.type;
 		this.name = params.name;
+		this.label = params.label;
 		this.options = params.options;
 		this.value = ko.observable(params.value);
+		this.inline = params.inline;
 		this.required = params.required;
-	};
+		this.error = ko.observable(null);
+	;}
 
 	var Select = function (params) {
 		this.type = params.type;
 		this.name = params.name;
+		this.label = params.label;
 		this.options = params.options;
 		this.value = ko.observable(params.value);
 		this.required = params.required;
+		this.error = ko.observable(null);
 	};
 
 	function KoFormModel (params) {
@@ -57,11 +63,14 @@ define(['knockout', 'text!./templates/ko-form.html'], function(ko, htmlString) {
 		this.submit = params.submit;
 
 		this.fields = ko.observableArray([]);
+
 		this.bindFields();
 		this.resetForm = function () {
 			this.bindFields();
 		};
+
 		this.disabled = ko.computed(function () {
+			// check for errors
 			for (var i = 0, len = self.fields().length; i < len; i++) {
 				if (typeof self.fields()[i].error == 'function') {
 					if (self.fields()[i].error()) return true;
@@ -69,8 +78,9 @@ define(['knockout', 'text!./templates/ko-form.html'], function(ko, htmlString) {
 			}
 			return false;
 		}, this);
+
 		this.innerData = ko.computed(function () {
-			return this.prepareForm(self.fields());
+			return self.prepareForm(self.fields());
 		}, this) ;
 
 	}
@@ -122,14 +132,18 @@ define(['knockout', 'text!./templates/ko-form.html'], function(ko, htmlString) {
 					this.fields.push(new Radio({
 						type: this.form[i].type,
 						name: this.form[i].name,
+						label: this.form[i].label,
+						inline: this.form[i].inline,
 						options: this.form[i].options,
 						value: this.form[i].value,
+						required: this.form[i].required,
 					}));
 					break;
 				case 'input-select':
 					this.fields.push(new Select({
 						type: this.form[i].type,
 						name: this.form[i].name,
+						label: this.form[i].label,
 						options: this.form[i].options,
 						value: this.form[i].value,
 					}));

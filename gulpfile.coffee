@@ -70,6 +70,10 @@ gulp.task 'copy-knockout-debug', ->
 #may be start just once
 gulp.task 'copy-ko', ['copy-knockout', 'copy-knockout-debug']
 
+gulp.task 'copy-hljs', ->
+	gulp.src 'node_modules/highlight.js/lib/**/*.*'
+	.pipe gulp.dest "#{paths.js.src}#{paths.js.modules}/hljs"
+
 # without optimization
 # todo: make inline strings in components dist modules
 # so not need require['text!.....template.html'] and double request
@@ -90,7 +94,7 @@ gulp.task 'js-modules', ['copy-templates'], ->
 
 gulp.task 'bootstrap-less', ->
 	gulp.src 'node_modules/bootstrap/less/bootstrap.less'
-	.pipe do less # compress: off
+	.pipe less compress: on
 	.pipe gulp.dest paths.css
 
 gulp.task 'connect', ->
@@ -106,9 +110,12 @@ gulp.task 'update', ->
 gulp.task 'watch-html', ->
 	gulp.watch '**/*.html', ['update']
 
+gulp.task 'watch-main', ->
+	gulp.watch "#{paths.js.base}", ['write-main', 'update']
+
 gulp.task 'watch-modules', ->
 	gulp.watch "#{paths.js.src}#{paths.js.modules}/**/*.js", ['js-modules', 'update']
 
-gulp.task 'watch', ['watch-html', 'watch-modules']
+gulp.task 'watch', ['watch-html', 'watch-modules', 'watch-main']
 
 gulp.task 'default', ['write-main', 'js-modules', 'connect', 'watch']

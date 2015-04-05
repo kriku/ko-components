@@ -19,16 +19,17 @@
 			<h2><code>ko-form</code></h2>
 			<div class="row">
 				<div class="col-md-4">
-<pre>&lt;div data-bind='component: {
+<pre><code class="html">&lt;div data-bind='component: {
 	name: "ko-form",
 	params: {
 		form: formSrc,
 		action: "some-action",
 		method: "post",
 		data: data,
+		reset: "Reset",
 		submit: "Submit"
 	}
-}'&gt;&lt;/div&gt;</pre>
+}'&gt;&lt;/div&gt;</code></pre>
 				</div>
 				<div class="col-md-4">
 					Component form registred next components:
@@ -58,11 +59,15 @@
 				</div>
 				<div class="col-md-4 col-sm-6">
 					Form source
-					<pre data-bind="text: ko.toJSON($root.formSrc, null, 2)" style="height: 400px;"></pre>
+					<pre style="height: 400px;">
+					<code data-bind="text: ko.toJSON($root.formSrc, null, 2)" class="json"></code>
+					</pre>
 				</div>
 				<div class="col-md-4 col-sm-6">
 					Form data
-					<pre data-bind="text: ko.toJSON($root.data, null, 2)"></pre>
+					<pre>
+					<code data-bind="text: ko.toJSON($root.data, null, 2)"></code>
+					</pre>
 				</div>
 			</div>
 
@@ -74,7 +79,7 @@
 	require(['main'], function() {
 		// Configuration loaded now, safe to do other require calls
 		// that depend on that config.
-		require(['knockout'], function(ko) {
+		require(['knockout', 'highlight.pack'], function(ko, hljs) {
 			var _form = [
 				{
 					type: 'input-text',
@@ -82,13 +87,12 @@
 					label: 'First name',
 					value: 'Default name',
 					minLength: 5,
-					required: true
 				},
 				{
 					type: 'input-text',
 					name: 'secondName',
 					label: 'Second name',
-					value: 'Current name',
+					value: '',
 					required: true
 				},
 				{
@@ -97,20 +101,6 @@
 					label: 'Age',
 					value: '18'
 				},
-				// {
-				// 	type: 'input-num',
-				// 	name: 'age',
-				// 	label: 'Age 2',
-				// 	value: '2',
-				// 	required: true
-				// },
-				// {
-				// 	type: 'input-num',
-				// 	name: 'age',
-				// 	label: 'Age 3',
-				// 	value: '3',
-				// 	required: true
-				// },
 				{
 					type: 'input-check',
 					name: 'check',
@@ -119,17 +109,19 @@
 				{
 					type: 'input-radio',
 					name: 'radio1',
+					label: 'Select option',
 					options: [
 						{value: 'option1', label: 'Option 1'},
 						{value: 'option2', label: 'Option 2'},
-						{value: 'option3', label: 'Option 3'},
-						{value: 'option4', label: 'Option 4'}
+						{value: 'option3', label: 'Option 3'}
 					],
-					value: 'option3'
+					value: 'option3',
+					inline: true
 				},
 				{
 					type: 'input-select',
 					name: 'select1',
+					label: 'Select another option',
 					options: [
 						{},
 						{value: 'option1', label: 'Option 1'},
@@ -137,14 +129,21 @@
 						{value: 'option3', label: 'Option 3'},
 						{value: 'option4', label: 'Option 4'}
 					],
-					// value: 'option2'
+					value: '',
+					required: true
 				}
 			];
 
 			var FormModel = function () {
+				var self = this;
 				this.formSrc = _form;
 				this.data = ko.observable();
+				this.rerender = ko.computed(function () {
+					hljs.initHighlighting();
+					return ko.toJSON(self.data, null, 2);
+				});
 			};
+
 
 			ko.components.register('ko-form', { require: 'ko/ko-form' });
 			ko.applyBindings(new FormModel());

@@ -22,6 +22,7 @@ define(['knockout', 'text!./templates/input-select.html'], function(ko, htmlStri
   function InputSelectModel (params) {
     var self = this;
     this.name = params.name;
+    this.label = params.label;
     this.options = params.options;
     this.value = params.value;
     this.caption = params.caption;

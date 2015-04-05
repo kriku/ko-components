@@ -1,5 +1,7 @@
 <div class="form-group">
+	<label data-bind="text: label, attr: {'for': name}"></label>
 	<select data-bind="options: optionValues,
 		optionText: optionLabels,
-		value: value" class="form-control"></select>
+		value: value,
+		attr: {id: name}" class="form-control"></select>
 </div>

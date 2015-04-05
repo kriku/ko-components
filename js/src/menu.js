@@ -1,5 +1,5 @@
 
-require(['bars', 'utils', 'knockout'], function (bars, utils, ko) {
+require(['bars', 'utils', 'knockout', 'highlight.pack'], function (bars, utils, ko, hljs) {
 
 	// init on standard ids
 	var mainNav = document.getElementById('mainNav'),
@@ -34,4 +34,6 @@ require(['bars', 'utils', 'knockout'], function (bars, utils, ko) {
 		});
 	}
 
+console.log(hljs);
+	hljs.initHighlighting();
 });
