@@ -1,0 +1,9 @@
+<div class="form-group">
+	<label data-bind="attr: {'for': name}, text: label"></label>
+	<input type="text" data-bind="attr: {
+			name: name,
+			'id': name
+		},
+		value: value" class="form-control"/>
+	<p class="text-danger" data-bind="text: error"></p>
+</div>

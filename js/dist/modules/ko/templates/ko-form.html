@@ -1,0 +1,12 @@
+<form data-bind="attr: {action: action}">
+	<div data-bind="foreach: fields">
+		<div data-bind='component: {
+			name: $data.type,
+			params: $data
+		}'></div>
+	</div>
+	<div class="text-right form-group">
+		<button type="button" data-bind="click: resetForm, text: reset" class="btn btn-default"></button>
+		<button type="submit" data-bind="attr: {disabled: disabled}, text: submit" class="btn btn-primary"></button>
+	</div>
+</form>

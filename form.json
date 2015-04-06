@@ -1,0 +1,52 @@
+[
+  {
+    "type": "input-text",
+    "name": "firstName",
+    "label": "First name",
+    "value": "Default name",
+    "minLength": 5
+  },
+  {
+    "type": "input-text",
+    "name": "secondName",
+    "label": "Second name",
+    "value": "",
+    "required": true
+  },
+  {
+    "type": "input-num",
+    "name": "age",
+    "label": "Age",
+    "value": "18"
+  },
+  {
+    "type": "input-check",
+    "name": "check",
+    "label": "Check component"
+  },
+  {
+    "type": "input-radio",
+    "name": "radio1",
+    "label": "Select option",
+    "options": [
+      {"value": "option1", "label": "Option 1"},
+      {"value": "option2", "label": "Option 2"},
+      {"value": "option3", "label": "Option 3"}
+    ],
+    "value": "option3",
+    "inline": true
+  },
+  {
+    "type": "input-select",
+    "name": "select1",
+    "label": "Select another option",
+    "options": [
+      {"value": "option1", "label": "Option 1"},
+      {"value": "option2", "label": "Option 2"},
+      {"value": "option3", "label": "Option 3"},
+      {"value": "option4", "label": "Option 4"}
+    ],
+    "value": "",
+    "required": true
+  }
+]
