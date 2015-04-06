@@ -4,10 +4,11 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--[if lt IE 9]>
-	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>	<script src="js/json2.min.js"></script>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="js/json2.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
-	<script data-main="js/src/main" src="js/require.js"></script>
+	<script data-main="js/dist/main" src="js/require.js"></script>
 	<link rel="stylesheet" href="css/bootstrap.css">
 </head>
 <body>
@@ -19,17 +20,16 @@
 			<h2><code>ko-form</code></h2>
 			<div class="row">
 				<div class="col-md-4">
-<pre><code class="html">&lt;div data-bind='component: {
-	name: "ko-form",
-	params: {
-		form: formSrc,
-		action: "some-action",
-		method: "post",
-		data: data,
-		reset: "Reset",
-		submit: "Submit"
-	}
-}'&gt;&lt;/div&gt;</code></pre>
+					<h3>Markup bindings</h3>
+					<pre><code data-bind="highlight: 'desc/binding.html'" class="html"></code></pre>
+				</div>
+				<div class="col-md-4">
+					<h3>form.json</h3>
+					<pre style="height: 232px;"><code data-bind="highlight: 'form.json'" class="json"></code></pre>
+				</div>
+				<div class="col-md-4">
+					<h3>Form model</h3>
+					<pre><code data-bind="highlight: 'desc/model.js'" class="javascript"></code></pre>
 				</div>
 				<div class="col-md-4">
 					Component form registred next components:
@@ -48,26 +48,18 @@
 					<div data-bind='component: {
 						name: "ko-form",
 						params: {
-							form: formSrc,
+							form: "form.json",
 							action: "some-action",
 							method: "post",
-							data: data,
+							data: formData,
 							reset: "Reset",
 							submit: "Submit"
 						}
 					}'></div>
 				</div>
 				<div class="col-md-4 col-sm-6">
-					Form source
-					<pre style="height: 400px;">
-					<code data-bind="text: ko.toJSON($root.formSrc, null, 2)" class="json"></code>
-					</pre>
-				</div>
-				<div class="col-md-4 col-sm-6">
 					Form data
-					<pre>
-					<code data-bind="text: ko.toJSON($root.data, null, 2)"></code>
-					</pre>
+					<pre><code data-bind="highlight: ko.toJSON($root.formData, null, 2)" class="json"></code></pre>
 				</div>
 			</div>
 
@@ -79,77 +71,59 @@
 	require(['main'], function() {
 		// Configuration loaded now, safe to do other require calls
 		// that depend on that config.
-		require(['knockout', 'highlight.pack'], function(ko, hljs) {
-			var _form = [
-				{
-					type: 'input-text',
-					name: 'firstName',
-					label: 'First name',
-					value: 'Default name',
-					minLength: 5,
-				},
-				{
-					type: 'input-text',
-					name: 'secondName',
-					label: 'Second name',
-					value: '',
-					required: true
-				},
-				{
-					type: 'input-num',
-					name: 'age',
-					label: 'Age',
-					value: '18'
-				},
-				{
-					type: 'input-check',
-					name: 'check',
-					label: 'Check component',
-				},
-				{
-					type: 'input-radio',
-					name: 'radio1',
-					label: 'Select option',
-					options: [
-						{value: 'option1', label: 'Option 1'},
-						{value: 'option2', label: 'Option 2'},
-						{value: 'option3', label: 'Option 3'}
-					],
-					value: 'option3',
-					inline: true
-				},
-				{
-					type: 'input-select',
-					name: 'select1',
-					label: 'Select another option',
-					options: [
-						{},
-						{value: 'option1', label: 'Option 1'},
-						{value: 'option2', label: 'Option 2'},
-						{value: 'option3', label: 'Option 3'},
-						{value: 'option4', label: 'Option 4'}
-					],
-					value: '',
-					required: true
-				}
-			];
+		require(['knockout', 'highlight.pack', 'utils'], function(ko, hljs, utils) {
 
 			var FormModel = function () {
 				var self = this;
-				this.formSrc = _form;
-				this.data = ko.observable();
-				this.rerender = ko.computed(function () {
-					hljs.initHighlighting();
-					return ko.toJSON(self.data, null, 2);
-				});
+				this.formData = ko.observable();
 			};
 
-
 			ko.components.register('ko-form', { require: 'ko/ko-form' });
-			ko.applyBindings(new FormModel());
+
+			var formModel = new FormModel();
+
+			function htmlEscape (text) {
+				return text.replace(/[<>"&]/g, function(match, pos, originalText) {
+					switch (match) {
+						case "<":
+							return "&lt;";
+						case ">":
+							return "&gt;";
+						case "&":
+							return "&amp;";
+						case "\"":
+							return "&quot;";
+					}
+			 });
+			}
+
+			ko.bindingHandlers.highlight = {
+				init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+					var value = ko.unwrap(valueAccessor());
+					if (typeof value === 'string') {
+							var ajax = new utils.Ajax();
+							ajax.onreadystatechange = function () {
+								if (ajax.readyState==4 && ajax.status==200)
+								{
+									element.innerHTML = htmlEscape(ajax.responseText);
+									hljs.highlightBlock(element);
+								}
+							};
+							ajax.open('GET', value, true);
+							ajax.send();
+					}
+				},
+				update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+					var value = ko.unwrap(valueAccessor());
+					value = (value)? htmlEscape(value) : '';
+					element.innerHTML = value;
+					hljs.highlightBlock(element);
+				}
+			};
+
+			ko.applyBindings(formModel);
 		});
 	});
-
 </script>
 </body>
 </html:html>

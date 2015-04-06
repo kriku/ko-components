@@ -4,8 +4,8 @@
 // Recommended AMD module pattern for a Knockout component that:
 //  - Can be referenced with just a single 'require' declaration
 //  - Can be included in a bundle using the r.js optimizer
-define(['knockout', 'text!./templates/ko-form.html'],
-function(ko, htmlString) {
+define(['knockout', 'utils', 'text!./templates/ko-form.html'],
+function(ko, utils, htmlString) {
 
 	var Input = function (params) {
 		this.type = params.type;
@@ -64,7 +64,14 @@ function(ko, htmlString) {
 
 		this.fields = ko.observableArray([]);
 
-		this.bindFields();
+		if (this.form instanceof Array) {
+			this.bindFields();
+		}
+
+		if (typeof this.form === 'string') {
+			this.getForm(this.form);
+		}
+
 		this.resetForm = function () {
 			this.bindFields();
 		};
@@ -81,9 +88,24 @@ function(ko, htmlString) {
 
 		this.innerData = ko.computed(function () {
 			return self.prepareForm(self.fields());
-		}, this) ;
+		}, this);
 
 	}
+
+	KoFormModel.prototype.getForm = function (url) {
+		var self = this;
+		var ajax = utils.Ajax();
+		ajax.onreadystatechange = function () {
+			if (ajax.readyState==4 && ajax.status==200)
+			{
+				self.form = JSON.parse(ajax.responseText);
+				self.bindFields();
+			}
+		};
+		ajax.open('GET', url, true);
+		ajax.send();
+	};
+
 
 	KoFormModel.prototype.prepareForm = function (data) {
 		var result = {};

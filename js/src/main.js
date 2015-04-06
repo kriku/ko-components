@@ -38,7 +38,5 @@ require(['bars', 'utils', 'knockout', 'highlight.pack'], function (bars, utils, 
 			}
 		});
 	}
-
-console.log(hljs);
 	hljs.initHighlighting();
 });
