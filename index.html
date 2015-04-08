@@ -8,10 +8,17 @@
 	<script src="js/json2.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
-	<script data-main="js/dist/main" src="js/require.js"></script>
+	<script data-main="js/dist/src/main" src="js/require.js"></script>
 	<link rel="stylesheet" href="css/bootstrap.css">
 </head>
 <body>
+<div class="navbar navbar-default" id="mainNav">
+	<ul class="nav navbar-nav clearfix">
+		<li><a id="mainNavCtrl"><i>—</i></a></li>
+		<li><a href="index.html">Components</a></li>
+		<li><a href="index.html">Documentation</a></li>
+	</ul>
+</div>
 
 <div id="mainContainer">
 	<div id="koInputText" class="area">
@@ -40,7 +47,6 @@
 						<li>input-radio
 						<li>input-select
 					</ul>
-
 				</div>
 			</div>
 			<div class="row">
@@ -62,68 +68,8 @@
 					<pre><code data-bind="highlight: ko.toJSON($root.formData, null, 2)" class="json"></code></pre>
 				</div>
 			</div>
-
 		</div>
 	</div>
 </div>
-
-<script>
-	require(['main'], function() {
-		// Configuration loaded now, safe to do other require calls
-		// that depend on that config.
-		require(['knockout', 'highlight.pack', 'utils'], function(ko, hljs, utils) {
-
-			var FormModel = function () {
-				var self = this;
-				this.formData = ko.observable();
-			};
-
-			ko.components.register('ko-form', { require: 'ko/ko-form' });
-
-			var formModel = new FormModel();
-
-			function htmlEscape (text) {
-				return text.replace(/[<>"&]/g, function(match, pos, originalText) {
-					switch (match) {
-						case "<":
-							return "&lt;";
-						case ">":
-							return "&gt;";
-						case "&":
-							return "&amp;";
-						case "\"":
-							return "&quot;";
-					}
-			 });
-			}
-
-			ko.bindingHandlers.highlight = {
-				init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-					var value = ko.unwrap(valueAccessor());
-					if (typeof value === 'string') {
-							var ajax = new utils.Ajax();
-							ajax.onreadystatechange = function () {
-								if (ajax.readyState==4 && ajax.status==200)
-								{
-									element.innerHTML = htmlEscape(ajax.responseText);
-									hljs.highlightBlock(element);
-								}
-							};
-							ajax.open('GET', value, true);
-							ajax.send();
-					}
-				},
-				update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-					var value = ko.unwrap(valueAccessor());
-					value = (value)? htmlEscape(value) : '';
-					element.innerHTML = value;
-					hljs.highlightBlock(element);
-				}
-			};
-
-			ko.applyBindings(formModel);
-		});
-	});
-</script>
 </body>
 </html:html>

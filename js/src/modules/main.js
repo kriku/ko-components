@@ -1,4 +1,9 @@
-
+require.config({
+	baseUrl: 'js/src/modules',
+	paths: {
+		knockout: '../knockout'
+	}
+});
 require(['bars', 'utils', 'knockout', 'highlight.pack'], function (bars, utils, ko, hljs) {
 
 	// init on standard ids

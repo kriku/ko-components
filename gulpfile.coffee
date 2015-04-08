@@ -2,8 +2,10 @@ gulp = require 'gulp'
 less = require 'gulp-less'
 rename = require 'gulp-rename'
 connect = require 'gulp-connect'
-# concat = require 'gulp-concat'
+optimize = require 'amd-optimize'
+concat = require 'gulp-concat'
 uglify = require 'gulp-uglify'
+clean = require 'gulp-clean'
 # convert = require 'gulp-convert-encoding'
 # rjs = require 'gulp-requirejs'
 header = require 'gulp-header'
@@ -39,6 +41,10 @@ config = (baseUrl) ->
 # config is relative to the baseUrl, and
 # never includes a ".js" extension since
 # the paths config could be for a directory.
+
+gulp.task 'clean', ->
+	gulp.src paths.js.dist, read: false
+	.pipe do clean
 
 # So for src and dist version write different configs
 gulp.task 'write-main-src', ->
@@ -82,15 +88,16 @@ gulp.task 'copy-templates', ->
 	.pipe gulp.dest (paths.js.dist + paths.js.modules)
 
 #main 
-gulp.task 'js-modules', ['copy-templates'], ->
+gulp.task 'js-modules', ->
 	# all js modules
 	gulp.src [
 		"#{paths.js.src}#{paths.js.modules}/**/*.js"
-		paths.js.base
 	]
+	.pipe optimize 'main'
+	.pipe concat 'main.js'
 	.pipe do uglify
 #	.pipe convert to: 'cp1251'
-	.pipe gulp.dest (paths.js.dist + paths.js.modules)
+	.pipe gulp.dest paths.js.dist
 
 gulp.task 'bootstrap-less', ->
 	gulp.src 'node_modules/bootstrap/less/bootstrap.less'
@@ -118,4 +125,4 @@ gulp.task 'watch-modules', ->
 
 gulp.task 'watch', ['watch-html', 'watch-modules', 'watch-main']
 
-gulp.task 'default', ['write-main', 'js-modules', 'connect', 'watch']
+gulp.task 'default', ['connect', 'watch']

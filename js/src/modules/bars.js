@@ -1,4 +1,4 @@
-define(['utils'], function (utils) {
+define(['./utils'], function (utils) {
 	var _borderDiff = 5;
 
 	var Navbar = function (el, ctrl, position) {

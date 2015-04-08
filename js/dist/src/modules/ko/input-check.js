@@ -1,0 +1,1 @@
+define(["knockout","utils","text!./templates/input-check.html"],function(e,t,n){function r(e){this.name=e.name,this.label=e.label,this.value=e.value}return{viewModel:r,template:n}});

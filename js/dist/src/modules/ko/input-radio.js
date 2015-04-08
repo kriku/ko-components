@@ -1,0 +1,1 @@
+define(["knockout","text!./templates/input-radio.html"],function(e,t){function n(t){var n=this;this.name=t.name,this.label=t.label,this.options=t.options,this.value=t.value,this.inline=t.inline,this.check=function(){return n.value(this.value),!0},this.radioClass=e.computed(function(){return n.inline?"radio-inline":"radio"},this,{pure:!0})}return{viewModel:n,template:t}});
